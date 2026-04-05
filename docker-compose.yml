@@ -1,0 +1,48 @@
+services:
+  maintmode:
+    build: .
+    container_name: maintmode
+    restart: unless-stopped
+
+    networks:
+      - proxy
+
+    volumes:
+      # Persistent state (site registry)
+      - ./data:/app/data
+
+      # Traefik dynamic config directory — same host path that Traefik
+      # mounts as /etc/traefik/dynamic (read-only). This container needs
+      # read-write access to create/delete maintenance router files.
+      - /root/traefik/dynamic:/traefik-dynamic
+
+    environment:
+      - TRAEFIK_DYNAMIC_DIR=/traefik-dynamic
+      - ADMIN_HOST=maint.storavalla.se
+      - DEFAULT_CERT_RESOLVER=le
+      - DEFAULT_ENTRYPOINT=websecure
+      - MAINTMODE_CONTAINER_NAME=maintmode
+      - MAINTMODE_PORT=8010
+
+    labels:
+      - traefik.enable=true
+
+      # Admin dashboard router
+      - traefik.http.routers.maintmode.rule=Host(`maint.storavalla.se`)
+      - traefik.http.routers.maintmode.entrypoints=websecure
+      - traefik.http.routers.maintmode.tls.certresolver=le
+      - traefik.http.routers.maintmode.service=maintmode
+      - traefik.http.routers.maintmode.middlewares=maintmode-auth
+
+      - traefik.http.services.maintmode.loadbalancer.server.port=8010
+
+      # BasicAuth for the admin dashboard
+      # Generate with: htpasswd -nB admin
+      - traefik.http.middlewares.maintmode-auth.basicauth.users=${MAINTMODE_USERS}
+
+      - traefik.docker.network=proxy
+
+networks:
+  proxy:
+    name: proxy
+    external: true

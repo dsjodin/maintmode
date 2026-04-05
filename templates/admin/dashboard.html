@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maintmode - Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="admin-body">
+  <div class="admin-container">
+    <header class="admin-header">
+      <h1>Maintenance Mode Manager</h1>
+      <p class="subtitle">Toggle maintenance mode for your sites</p>
+    </header>
+
+    <section class="add-site-section">
+      <h2>Add Site</h2>
+      <form id="add-site-form" class="add-site-form">
+        <input type="text" id="hostname" placeholder="hostname.storavalla.se" required>
+        <input type="text" id="sitename" placeholder="Display Name" required>
+        <button type="submit" class="btn btn-add">Add Site</button>
+      </form>
+    </section>
+
+    <section class="sites-section">
+      <h2>Managed Sites</h2>
+      <div id="sites-list" class="sites-list">
+        <p class="loading">Loading sites...</p>
+      </div>
+    </section>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Maintenance modal -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>Enable Maintenance</h3>
+        <p id="modal-hostname" class="modal-hostname"></p>
+        <form id="maintenance-form">
+          <label for="maint-message">Message (optional)</label>
+          <textarea id="maint-message" rows="3" placeholder="We're performing scheduled maintenance. We'll be back shortly."></textarea>
+          <label for="maint-return">Estimated return (optional)</label>
+          <input type="text" id="maint-return" placeholder="e.g. 2 hours, 15:00 UTC">
+          <div class="modal-actions">
+            <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+            <button type="submit" class="btn btn-danger">Enable Maintenance</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script src="/static/js/admin.js"></script>
+</body>
+</html>
