@@ -75,9 +75,9 @@ async def route_by_host(request: Request, call_next):
     estimated_return = site.estimated_return if site else None
 
     return templates.TemplateResponse(
+        request,
         "maintenance/maintenance.html",
-        {
-            "request": request,
+        context={
             "site_name": site_name,
             "message": message,
             "estimated_return": estimated_return,

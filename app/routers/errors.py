@@ -28,9 +28,9 @@ ERROR_MESSAGES = {
 async def error_page(request: Request, status_code: int) -> HTMLResponse:
     message = ERROR_MESSAGES.get(status_code, "Something went wrong")
     return templates.TemplateResponse(
+        request,
         "errors/error.html",
-        {
-            "request": request,
+        context={
             "status_code": status_code,
             "message": message,
         },
