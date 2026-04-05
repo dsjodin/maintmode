@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     default_cert_resolver: str = "le"
     default_entrypoint: str = "websecure"
     maintmode_container_name: str = "maintmode"
-    maintmode_port: int = 8080
+    maintmode_port: int = 8010
     router_priority: int = 1000
 
     @property

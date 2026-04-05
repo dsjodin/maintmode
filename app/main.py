@@ -1,4 +1,6 @@
+import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -10,13 +12,20 @@ from app import sites as site_store
 from app import traefik
 from app.routers import api, admin, errors
 
+logger = logging.getLogger("maintmode")
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: load site registry and ensure shared Traefik configs
     site_store.load()
-    traefik.ensure_shared_configs()
-    _reconcile_state()
+    try:
+        traefik.ensure_shared_configs()
+        _reconcile_state()
+    except Exception:
+        logger.warning("Failed to write Traefik configs on startup — check volume mount", exc_info=True)
     yield
 
 
@@ -32,14 +41,14 @@ def _reconcile_state() -> None:
 
 app = FastAPI(title="Maintmode", lifespan=lifespan)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 # Register routers
 app.include_router(api.router)
 app.include_router(admin.router)
 app.include_router(errors.router)
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
 
 @app.middleware("http")
@@ -49,7 +58,8 @@ async def route_by_host(request: Request, call_next):
     - Admin host -> admin UI + API (pass through to FastAPI routes)
     - Any other host -> serve maintenance page
     """
-    host = request.headers.get("host", "").split(":")[0]
+    host = request.headers.get("host", "").split(":")[0].strip().lower()
+    logger.debug("Request host=%r path=%r admin_host=%r", host, request.url.path, settings.admin_host)
 
     if host == settings.admin_host:
         return await call_next(request)
