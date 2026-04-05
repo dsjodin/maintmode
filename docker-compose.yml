@@ -11,11 +11,10 @@ services:
       # Persistent state (site registry)
       - ./data:/app/data
 
-      # Traefik dynamic config directory — MUST be the same host path
-      # that Traefik mounts as /etc/traefik/dynamic (read-only).
-      # This container needs read-write access to create/delete router files.
-      # Adjust the left side to match your Traefik compose's ./dynamic path.
-      - ../traefik/dynamic:/traefik-dynamic
+      # Traefik dynamic config directory — same host path that Traefik
+      # mounts as /etc/traefik/dynamic (read-only). This container needs
+      # read-write access to create/delete maintenance router files.
+      - /root/traefik/dynamic:/traefik-dynamic
 
     environment:
       - TRAEFIK_DYNAMIC_DIR=/traefik-dynamic

@@ -27,10 +27,10 @@ Edit `docker-compose.yml` and set the Traefik dynamic config path:
 
 ```yaml
 volumes:
-  - ../traefik/dynamic:/traefik-dynamic  # Adjust to your Traefik dynamic dir
+  - /root/traefik/dynamic:/traefik-dynamic
 ```
 
-This must be the **same host directory** that Traefik mounts as `/etc/traefik/dynamic:ro`.
+This must be the **same host directory** that Traefik mounts as `/etc/traefik/dynamic:ro`. The default is already set to `/root/traefik/dynamic`.
 
 ### 2. Set up authentication
 
